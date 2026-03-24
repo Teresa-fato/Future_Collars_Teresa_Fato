@@ -1,120 +1,7 @@
 """
 Inventory Manager — A CLI-based inventory and account management system.
 Supports sales, purchases, balance adjustments, warehouse tracking, and operation history.
-Data is persisted to text files between sessions.
 """
-
-import os
-from ast import literal_eval
-
-# ── File Paths ────────────────────────────────────────────────────────
-
-DATA_DIR = os.path.dirname(os.path.abspath(__file__))
-BALANCE_FILE = os.path.join(DATA_DIR, "balance.txt")
-WAREHOUSE_FILE = os.path.join(DATA_DIR, "warehouse.txt")
-HISTORY_FILE = os.path.join(DATA_DIR, "history.txt")
-
-
-# ── File I/O ──────────────────────────────────────────────────────────
-
-
-def load_balance():
-    """Load account balance from file. Returns 0.0 if file missing or corrupt."""
-    try:
-        with open(BALANCE_FILE, "r") as f:
-            value = literal_eval(f.read().strip())
-            if isinstance(value, (int, float)):
-                print(f"  ✓ Balance loaded: {value:.2f}")
-                return float(value)
-            else:
-                print("  [!] Balance file has invalid format. Starting with 0.00.")
-                return 0.0
-    except FileNotFoundError:
-        print("  No saved balance found. Starting with 0.00.")
-        return 0.0
-    except (ValueError, SyntaxError):
-        print("  [!] Balance file is corrupted. Starting with 0.00.")
-        return 0.0
-    except OSError as e:
-        print(f"  [!] Error reading balance file: {e}. Starting with 0.00.")
-        return 0.0
-
-
-def load_warehouse():
-    """Load warehouse inventory from file. Returns empty dict if file missing or corrupt."""
-    try:
-        with open(WAREHOUSE_FILE, "r") as f:
-            data = literal_eval(f.read().strip())
-            if isinstance(data, dict):
-                print(f"  ✓ Warehouse loaded: {len(data)} product(s)")
-                return data
-            else:
-                print("  [!] Warehouse file has invalid format. Starting empty.")
-                return {}
-    except FileNotFoundError:
-        print("  No saved warehouse found. Starting empty.")
-        return {}
-    except (ValueError, SyntaxError):
-        print("  [!] Warehouse file is corrupted. Starting empty.")
-        return {}
-    except OSError as e:
-        print(f"  [!] Error reading warehouse file: {e}. Starting empty.")
-        return {}
-
-
-def load_history():
-    """Load operation history from file. Returns empty list if file missing or corrupt."""
-    try:
-        with open(HISTORY_FILE, "r") as f:
-            data = literal_eval(f.read().strip())
-            if isinstance(data, list):
-                print(f"  ✓ History loaded: {len(data)} operation(s)")
-                return data
-            else:
-                print("  [!] History file has invalid format. Starting empty.")
-                return []
-    except FileNotFoundError:
-        print("  No saved history found. Starting empty.")
-        return []
-    except (ValueError, SyntaxError):
-        print("  [!] History file is corrupted. Starting empty.")
-        return []
-    except OSError as e:
-        print(f"  [!] Error reading history file: {e}. Starting empty.")
-        return []
-
-
-def save_all(account_balance, warehouse, history):
-    """Save all program state to text files."""
-    errors = []
-
-    try:
-        with open(BALANCE_FILE, "w") as f:
-            f.write(repr(account_balance))
-    except OSError as e:
-        errors.append(f"Balance: {e}")
-
-    try:
-        with open(WAREHOUSE_FILE, "w") as f:
-            f.write(repr(warehouse))
-    except OSError as e:
-        errors.append(f"Warehouse: {e}")
-
-    try:
-        with open(HISTORY_FILE, "w") as f:
-            f.write(repr(history))
-    except OSError as e:
-        errors.append(f"History: {e}")
-
-    if errors:
-        print("  [!] Errors saving data:")
-        for err in errors:
-            print(f"      - {err}")
-    else:
-        print("  ✓ All data saved successfully.")
-
-
-# ── Display ───────────────────────────────────────────────────────────
 
 
 def display_commands():
@@ -130,14 +17,11 @@ def display_commands():
         ("list", "View full warehouse inventory"),
         ("warehouse", "Look up a specific product"),
         ("review", "Review operation history"),
-        ("end", "Save & exit the program"),
+        ("end", "Exit the program"),
     ]
     for cmd, desc in commands:
         print(f"  {cmd:<12} — {desc}")
     print("=" * 45)
-
-
-# ── Input Helpers ─────────────────────────────────────────────────────
 
 
 def get_float(prompt):
@@ -156,9 +40,6 @@ def get_int(prompt):
             return int(input(prompt))
         except ValueError:
             print("  [!] Please enter a valid whole number.")
-
-
-# ── Command Handlers ──────────────────────────────────────────────────
 
 
 def handle_balance(account_balance, history):
@@ -185,6 +66,7 @@ def handle_sale(account_balance, warehouse, history):
         print("  [!] Quantity must be positive.")
         return account_balance
 
+    # Check warehouse stock
     if name not in warehouse:
         print(f"  [!] '{name}' not found in warehouse. Cannot complete sale.")
         return account_balance
@@ -197,6 +79,7 @@ def handle_sale(account_balance, warehouse, history):
     account_balance += total
     warehouse[name]["quantity"] -= quantity
 
+    # Remove product entry if quantity reaches zero
     if warehouse[name]["quantity"] == 0:
         del warehouse[name]
 
@@ -221,6 +104,7 @@ def handle_purchase(account_balance, warehouse, history):
 
     total = price * quantity
 
+    # Ensure account won't go negative
     if account_balance - total < 0:
         print(f"  [!] Insufficient funds. Cost: {total:.2f}, Balance: {account_balance:.2f}")
         return account_balance
@@ -229,7 +113,7 @@ def handle_purchase(account_balance, warehouse, history):
 
     if name in warehouse:
         warehouse[name]["quantity"] += quantity
-        warehouse[name]["price"] = price
+        warehouse[name]["price"] = price  # Update to latest purchase price
     else:
         warehouse[name] = {"price": price, "quantity": quantity}
 
@@ -282,6 +166,7 @@ def handle_review(history):
     from_str = input(f"  From index (0–{len(history) - 1}, or Enter for all): ").strip()
     to_str = input(f"  To index   (0–{len(history) - 1}, or Enter for all): ").strip()
 
+    # Default to full range if empty
     if from_str == "" and to_str == "":
         start, end = 0, len(history)
     else:
@@ -292,6 +177,7 @@ def handle_review(history):
             print("  [!] Indices must be whole numbers.")
             return
 
+        # Clamp to valid range
         if start < 0:
             print(f"  [!] 'from' index adjusted from {start} to 0.")
             start = 0
@@ -309,17 +195,13 @@ def handle_review(history):
     print("  " + "-" * 50)
 
 
-# ── Main Entry Point ─────────────────────────────────────────────────
-
-
 def main():
     """Main application loop."""
-    print("\n  Welcome to Inventory Manager!")
-    print("  Loading saved data...\n")
+    account_balance = 0.0
+    warehouse = {}   # {product_name: {"price": float, "quantity": int}}
+    history = []     # List of operation descriptions
 
-    account_balance = load_balance()
-    warehouse = load_warehouse()
-    history = load_history()
+    print("\n  Welcome to Inventory Manager!")
 
     while True:
         display_commands()
@@ -340,9 +222,7 @@ def main():
         elif command == "review":
             handle_review(history)
         elif command == "end":
-            print("\n  Saving data...")
-            save_all(account_balance, warehouse, history)
-            print("  Goodbye!\n")
+            print("\n  Goodbye!\n")
             break
         else:
             print(f"  [!] Unknown command: '{command}'. Please try again.")
