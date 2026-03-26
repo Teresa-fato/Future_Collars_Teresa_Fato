@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Inventory Manager{% endblock %}</title>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+    <style>
+        body { background-color: #f7f8f9; }
+        .container { max-width: 960px; padding: 0 20px; }
+        .navbar { background: #5755d9; padding: 10px 0; margin-bottom: 30px; }
+        .navbar .navbar-brand, .navbar a { color: #fff; text-decoration: none; font-weight: bold; }
+        .navbar a:hover { opacity: 0.85; }
+        .nav-links a { margin-left: 20px; }
+        .card { margin-bottom: 20px; }
+        .hero { padding: 30px 0 10px 0; }
+        .balance-display { font-size: 2rem; font-weight: bold; color: #5755d9; }
+        .flash-messages { margin-bottom: 20px; }
+        footer { text-align: center; padding: 30px 0; color: #999; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="container">
+            <div class="columns">
+                <div class="column col-6">
+                    <a class="navbar-brand" href="{{ url_for('index') }}">📦 Inventory Manager</a>
+                </div>
+                <div class="column col-6 text-right nav-links">
+                    <a href="{{ url_for('index') }}">Home</a>
+                    <a href="{{ url_for('purchase') }}">Purchase</a>
+                    <a href="{{ url_for('sale') }}">Sale</a>
+                    <a href="{{ url_for('balance') }}">Balance</a>
+                    <a href="{{ url_for('history') }}">History</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        {% if category == 'error' %}
+                            <div class="toast toast-error">
+                                <button class="btn btn-clear float-right" onclick="this.parentElement.remove()"></button>
+                                ⚠️ {{ message }}
+                            </div>
+                        {% else %}
+                            <div class="toast toast-success">
+                                <button class="btn btn-clear float-right" onclick="this.parentElement.remove()"></button>
+                                ✅ {{ message }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <div class="container">Inventory Manager (Backend Edition) — Flask & Spectre.css</div>
+    </footer>
+</body>
+</html>
