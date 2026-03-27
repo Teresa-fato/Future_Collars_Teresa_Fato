@@ -6,3 +6,15 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+
+# Runtime data files
+balance.txt
+warehouse.txt
+history.txt
+weather_cache.json
+data_balance.txt
+data_warehouse.txt
+data_history.txt
+
+# SQLite database
+*.db

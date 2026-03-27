@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Inventory Manager{% endblock %} — SQLite</title>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+    <style>
+        body { padding: 2rem; }
+        .flash-success { color: #32b643; font-weight: bold; }
+        .flash-error { color: #e85600; font-weight: bold; }
+        .flash-warning { color: #ffb700; font-weight: bold; }
+        .nav-item { margin-right: 0.5rem; }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <section class="navbar-section">
+            <a href="/" class="btn btn-link">🏠 Dashboard</a>
+            <a href="/purchase" class="btn btn-link">📦 Purchase</a>
+            <a href="/sale" class="btn btn-link">💰 Sale</a>
+            <a href="/balance" class="btn btn-link">🏦 Balance</a>
+            <a href="/history/" class="btn btn-link">📋 History</a>
+        </section>
+        <section class="navbar-section">
+            <span class="text-gray">Inventory Manager (SQLite)</span>
+        </section>
+    </header>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="my-2">
+            {% for category, message in messages %}
+            <div class="toast toast-{{ 'success' if category == 'success' else 'error' if category == 'error' else 'warning' }} my-1">
+                <button class="btn btn-clear float-right"></button>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
