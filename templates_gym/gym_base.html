@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gym Booking System{% endblock %}</title>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+    <style>
+        body { background: #f7f8f9; }
+        .container { max-width: 960px; margin: 0 auto; padding: 1rem; }
+        .hero { background: linear-gradient(135deg, #5755d9, #32b643); color: white; padding: 2rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .hero h1 { color: white; }
+        .card { margin-bottom: 1rem; }
+        .flash-success { color: #32b643; }
+        .flash-error { color: #e85600; }
+        .navbar { margin-bottom: 1.5rem; }
+        .badge-spots { font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+
+<header class="navbar bg-dark" style="padding: 0.5rem 1rem;">
+    <section class="navbar-section">
+        <a href="/" class="btn btn-link text-light">🏋️ Home</a>
+        <a href="/booking" class="btn btn-link text-light">📅 Book</a>
+        <a href="/client" class="btn btn-link text-light">👤 Client</a>
+        <a href="/manage" class="btn btn-link text-light">⚙️ Manage</a>
+        <a href="/history" class="btn btn-link text-light">📋 History</a>
+    </section>
+</header>
+
+<div class="container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="toast {% if category == 'error' %}toast-error{% elif category == 'success' %}toast-success{% else %}toast-primary{% endif %}" style="margin-bottom: 0.5rem;">
+            <button class="btn btn-clear float-right" onclick="this.parentElement.remove()"></button>
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

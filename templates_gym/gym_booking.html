@@ -1,0 +1,64 @@
+{% extends "gym_base.html" %}
+{% block title %}Gym Booking — Book a Course{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-title h5">📅 Book a Course</div>
+        <div class="card-subtitle text-gray">Select a client, course, date and time.</div>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/booking">
+
+            <div class="form-group">
+                <label class="form-label" for="client_id">Client <span class="text-error">*</span></label>
+                {% if clients %}
+                <select class="form-select" id="client_id" name="client_id" required>
+                    <option value="">— Select a client —</option>
+                    {% for c in clients %}
+                    <option value="{{ c.id }}">{{ c.full_name() }} ({{ c.email }})</option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                <p class="text-gray">No clients registered. <a href="/client">Register one first</a>.</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="course_id">Course <span class="text-error">*</span></label>
+                {% if courses %}
+                <select class="form-select" id="course_id" name="course_id" required>
+                    <option value="">— Select a course —</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.name }} — €{{ "%.2f"|format(course.price) }} ({{ course.available_spots }} spots)</option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                <p class="text-gray">No courses with available spots.</p>
+                {% endif %}
+            </div>
+
+            <div class="columns">
+                <div class="column col-6">
+                    <div class="form-group">
+                        <label class="form-label" for="date">Date <span class="text-error">*</span></label>
+                        <input class="form-input" type="date" id="date" name="date" required>
+                    </div>
+                </div>
+                <div class="column col-6">
+                    <div class="form-group">
+                        <label class="form-label" for="time">Time <span class="text-error">*</span></label>
+                        <input class="form-input" type="time" id="time" name="time" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+                <button class="btn btn-primary" type="submit">✓ Book Course</button>
+                <a href="/" class="btn btn-link">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

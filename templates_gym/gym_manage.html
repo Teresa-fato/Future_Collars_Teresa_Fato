@@ -1,0 +1,90 @@
+{% extends "gym_base.html" %}
+{% block title %}Gym Booking — Manage Bookings{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-title h5">⚙️ Manage Bookings</div>
+        <div class="card-subtitle text-gray">Update booking status (booked / cancelled).</div>
+    </div>
+    <div class="card-body">
+        {% if bookings %}
+        <form method="POST" action="/manage">
+
+            <div class="form-group">
+                <label class="form-label" for="booking_id">Select Booking <span class="text-error">*</span></label>
+                <select class="form-select" id="booking_id" name="booking_id" required>
+                    <option value="">— Select a booking —</option>
+                    {% for b in bookings %}
+                    <option value="{{ b.id }}">
+                        #{{ b.id }} — {{ b.client.full_name() }} → {{ b.course.name }} ({{ b.date }} {{ b.time }}) [{{ b.status }}]
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">New Status <span class="text-error">*</span></label>
+                <label class="form-radio form-inline">
+                    <input type="radio" name="status" value="booked" checked>
+                    <i class="form-icon"></i> Booked
+                </label>
+                <label class="form-radio form-inline">
+                    <input type="radio" name="status" value="cancelled">
+                    <i class="form-icon"></i> Cancelled
+                </label>
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+                <button class="btn btn-primary" type="submit">✓ Update Booking</button>
+                <a href="/" class="btn btn-link">Cancel</a>
+            </div>
+
+        </form>
+        {% else %}
+        <p class="text-gray">No bookings to manage yet. <a href="/booking">Create one first</a>.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Current Bookings Table -->
+{% if bookings %}
+<div class="card" style="margin-top: 1rem;">
+    <div class="card-header">
+        <div class="card-title h5">All Bookings</div>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Client</th>
+                    <th>Course</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td>{{ b.id }}</td>
+                    <td>{{ b.client.full_name() }}</td>
+                    <td>{{ b.course.name }}</td>
+                    <td>{{ b.date }}</td>
+                    <td>{{ b.time }}</td>
+                    <td>
+                        {% if b.status == "booked" %}
+                            <span class="label label-success">booked</span>
+                        {% else %}
+                            <span class="label label-error">cancelled</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
